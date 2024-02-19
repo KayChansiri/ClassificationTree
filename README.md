@@ -33,7 +33,7 @@ Now that you have a basic understanding of what a decision tree is and its key e
 * According to the decision boundary plot created using the Iris dataset above, the areas filled in yellow, purple, and blue represent the *decision regions* as determined by the tree. These regions indicate where the algorithm predicts a specific class (i.e., Setosa, Versicolor, Virginica) for any given point based on the input features (i.e., sepal length and sepal width). The lines separating each of the three colored regions constitute the *decision boundaries*, which demarcate where the model's predictions shift from one flower class to another. Ideally, each decision region should correspond to a single class. However, as observed, the real world rarely aligns perfectly with our models, especially when constructing a decision tree with only a few features. Within the yellow decision region, despite the predominance of Versicolor points, there are several blue dots. These represent instances where the model has misclassified Virginica as Versicolor.
 * At each point along each feature axis, the algorithm calculates impurity indices, including *Gini index* or *entropy*. The value on the axis that yields the lowest Gini index or entropy, which indicate whether a node is pure enough, is used as the split point. In essence, a node is considered pure enough when the samples within it are more homogeneous than heterogeneous. The algorithm repeats this process with all features until it discovers the optimal decision boundary. Let's delve deeper into the concepts of Gini index and entropy for a clearer understanding of how these parameters influence classification tree growth.
 
-### Gini Index
+## Gini Index
 
 * Gini Index is a metric used to determine whether each node of a decision tree is sufficiently pure, containing homogeneous rather than heterogeneous samples. It calculates the probability of a randomly selected sample from a node being incorrectly classified. The closer the Gini index is to zero, the higher the purity of the leaf node, with a lower Gini index indicating greater purity.
 * If the split points of a feature result in a high Gini index, the tree might adjust these points or opt for new features to construct an alternative tree that reduces impurity.
@@ -50,7 +50,7 @@ Now that you have a basic understanding of what a decision tree is and its key e
 * The Gini index value of 0.2147 indicates that the node exhibits a certain level of purity, predominantly classifying cases as Setosa. However, being the result of the first split, this value is not optimal. For binary targets, the Gini index ranges from 0 (complete purity) to 0.5 (maximum impurity), which means a value of 0.2147 isn't deemed low enough to consider this node purely homogeneous. In the context of multiclassification targets, the Gini index can reach up to 1, accommodating a broader spectrum of impurity levels.
 
 
-### Entropy
+## Entropy
 
 * Entropy is a concept borrowed from information theory, signifying the measure of uncertainty or unpredictability in the information content. It helps quantify how much information there is in an event's outcome.
 * Consider a scenario where a node is associated with three possible classes, each with a distinct probability of occurrence. Although this situation implies the leaf is not perfectly pure, it raises an important question: is it beneficial to grow a tree with such a leaf, or is it better not to grow the tree at all? This is where entropy comes into play.
@@ -71,7 +71,7 @@ Now that you have a basic understanding of what a decision tree is and its key e
 * The calculated entropy value of 0.6496 signals a level of purity in the node, significantly shaped by the majority class, Setosa. However, considering that the maximum entropy for binary outcomes can be upto 1, the value of 0.6496 falls short of being considered ideal. A higher entropy value signifies a more equitable class distribution within the node, typically denoting a higher degree of 'impurity disorder.'
 * It's worthy to note that in the context of classification problems, such as with classification trees, the Gini index and entropy serve as criteria for deciding whether to split or further develop the tree. **These metrics do not measure model performance**. Instead, performance metrics for classification problems include accuracy, precision, recall, F1 scores, and the area under the curve, among others, which I will explain later in the post.
 
-### When Should We Stop Growing A Tree? - Tuning Hyperparameters
+## When Should We Stop Growing A Tree? - Tuning Hyperparameters
 
 Understanding impurity indices gives rise to a critical question: When and how do we decide to stop tree growth? Numerous criteria, essentially hyperparameters, can guide this decision. Without adjusting these hyperparameters, a tree might grow too complex, fitting too closely to the training data, which leads to overfitting. Decision tree algorithms offer a variety of hyperparameters for fine-tuning, with the following being among the most common across different algorithms if you are a 'scikit-learn' user:
 
@@ -103,7 +103,7 @@ To mitigate potential imbalances and the risk of overfitting, I would recommend 
 
 In essence, fine-tuning these hyperparameters involves finding a sweet spot between the model's bias and variance. The goal is to create a decision tree that is complex enough to capture the underlying patterns in the data but simple enough to generalize well to unseen data. *Experimentation* and *cross-validation* are key strategies in finding this balance and selecting the optimal set of hyperparameters.
 
-### Cross-Validation to Find the Best Hyperparameter Values
+## Cross-Validation to Find the Best Hyperparameter Values
 
 Cross-validation is a technique to evaluate and refine a model during its training phase, addressing overfitting and gaining insights into the model's potential performance on unseen datasets. This method is particularly useful for determining the optimal settings for hyperparameters. You can apply the cross validation technique to identify best hyperparameters by utilizing `GridSearchCV`, which implements the following steps:
 
@@ -119,6 +119,12 @@ Cross-validation is a technique to evaluate and refine a model during its traini
 4. **Final Model Training**: With the optimal hyperparameters identified, your decision tree undergoes one final training session on the entire training set using these selected settings, culminating in the final model. If your approach includes separate training, testing, and validation sets, this final model should also be evaluated using the validation set for an additional layer of assessment.
 
 5. **Test Set Prediction**: The ultimate step involves deploying this final model to make predictions on a separate test set. This crucial phase serves as a definitive evaluation of the model's expected performance on new data, offering a realistic gauge of its generalization capabilities.
+
+# Training Complexity: Assessing the Time Investment for Model Training
+
+As previously noted, decision trees stand out for their rapid implementation and straightforward interpretation. Their training complexity is relatively low, often characterized by the computational complexity of *O*(*n* X *m* log<sub>2</sub>(*n*)), where *n* represents the number of samples, *m* denotes the number of features, and *O* is the Big O notation. This notation is a staple in computer science for describing the upper limit of an algorithm's time or space requirements.
+
+The expression *O*(*n* X *m* log<sub>2</sub>(*n*)) suggests that the time required to train a decision tree model scales with the number of features and the number of samples. After the algorithm has been trained with the training data, the complexity of making predictions is reduced, as it no longer needs to consider the number of features; the model has already completed feature selection during training. Consequently, the number of nodes that must be traversed from the root to a leaf is just *O*(log<sub>2</sub>(*n*)).
 
 
 # Classification Tree Case Example: Predicting Deposit Subscription for Bank Customers
