@@ -19,10 +19,9 @@ To help simplify the elements of a decision tree, I've utilized the iris dataset
 * Branch: These are subsections of the tree that split from either the root or parent nodes. Each condition leads to another decision, which could be a leaf or another decision node. In the figure above, the branches are the lines connecting nodes (i.e., boxes).
 * Depth of a tree: The root noted is considered depth 0 and each split increases the depth of the tree by one. According to the figure, the depth is 2.
 
-# Types of Decision Trees
+# Classification Trees
 Now that you have a basic understanding of what a decision tree is and its key elements, let's explore the first type of decision tree: the classification tree.
 
-## 1. Classification Trees
 * This type of tree is designed to predict categorical outcomes, which can be either binary or multiclass. For simplicity, this post will focus on binary targets. 
 * While classification trees predict categorical outcomes, the features used to develop the tree can be both categorical and continuous.
 * The feature selected as the first node (i.e., root node) is not chosen randomly. Instead, the algorithm selects a feature from the dataset and evaluates how effectively it can categorize the target. This process is iterative, continuing until the algorithm identifies the optimal root node that results in the subsequent nodes being as pure as possible. For instance, in the iris example mentioned above, 'sepal length' is the root node because this feature better purifies the subsequent nodes compared to other features in the dataset.
