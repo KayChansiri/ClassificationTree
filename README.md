@@ -104,6 +104,19 @@ To mitigate potential imbalances and the risk of overfitting, I would recommend 
 
 In essence, fine-tuning these hyperparameters involves finding a sweet spot between the model's bias and variance. The goal is to create a decision tree that is complex enough to capture the underlying patterns in the data but simple enough to generalize well to unseen data. *Experimentation* and *cross-validation* are key strategies in finding this balance and selecting the optimal set of hyperparameters.
 
+### Cross-Validation to Find the Best Hyperparameter Values
+
+Cross-validation is a technique to evaluate and refine a model during its training phase, addressing overfitting and gaining insights into the model's potential performance on unseen datasets. This method is particularly useful for determining the optimal settings for hyperparameters. You can apply the cross validation technique to identify best hyperparameters by utilizing `GridSearchCV`, which implements the following steps:
+
+1. **Dividing the Training Set**: The first step of cross-validation is segmenting the training dataset into smaller subsets or folds. With `GridSearchCV`, you can specify the number of cross-validation folds ('cv') based on your preferences and dataset size. For larger datasets, a common approach is to use between 5 to 10 folds to manage computational demands efficiently. Smaller datasets may allow for more folds, depending on your available resources and time constraints.
+
+2. **Iterative Training and Validation**: In this phase, the model is trained on *n* - 1 folds and validated on the remaining fold. This procedure is repeated such that each fold serves as the validation set exactly once, ensuring comprehensive utilization of the data for training and validation. For instance, with `cv=5`, your classification tree is trained on 4 folds and validated on 1 fold in each iteration. This iterative approach not only aids in assessing the model's performance but also facilitates the identification of the most effective hyperparameters. Consider testing various combinations, such as 20 values for `max_depth`, 100 for `min_samples_leaf`, and 2 for `criterion` (i.e., `gini` and `entropy`), the Gridsearch would perform 4,000 combinations of hyperparamter testing in total. Given 5-fold cross-validation, the entire process encompasses 20,000 training and evaluation iterations (i.e., 4,000 x 5).
+
+3. **Averaging the Errors**: After completing the iterations, the next step is to average the validation errors or performance metrics across all iterations. This comprehensive exploration of the hyperparameter space helps pinpoint the combination of hyperparameters that yield the best model performance, which could be assessed by multiple metrics such as accuracy in classification tasks.
+
+4. **Final Model Training**: With the optimal hyperparameters identified, your decision tree undergoes one final training session on the entire training set using these selected settings, culminating in the final model. If your approach includes separate training, testing, and validation sets, this final model should also be evaluated using the validation set for an additional layer of assessment.
+
+5. **Test Set Prediction**: The ultimate step involves deploying this final model to make predictions on a separate test set. This crucial phase serves as a definitive evaluation of the model's expected performance on new data, offering a realistic gauge of its generalization capabilities.
 
 
 # Classification Tree Case Example: Predicting Deposit Subscription for Bank Customers
