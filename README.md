@@ -83,7 +83,7 @@ Now that we've prepared the data, let's delve into the components of a decision 
 # Types of Decision Trees
 Now that you have a basic understanding of what a decision tree is and its key elements, let's explore the first type of decision tree: the classification tree.
 
-## Classification Trees
+## 1. Classification Trees
 * This type of tree is designed to predict categorical outcomes, which can be either binary or multiclass. For simplicity, this post will focus on binary targets. 
 * While classification trees predict categorical outcomes, the features used to develop the tree can be both categorical and continuous.
 * The feature selected as the first node (i.e., root node) is not chosen randomly. Instead, the algorithm selects a feature from the dataset and evaluates how effectively it can categorize the target. This process is iterative, continuing until the algorithm identifies the optimal root node that results in the subsequent nodes being as pure as possible. For instance, in the iris example mentioned above, 'sepal length' is the root node because this feature better purifies the subsequent nodes compared to other features in the dataset.
@@ -92,9 +92,46 @@ Now that you have a basic understanding of what a decision tree is and its key e
 
 <img width="640" alt="Screen Shot 2024-02-19 at 9 10 03 AM" src="https://github.com/KayChansiri/DecisionTree/assets/157029107/515debf0-5bf8-4f1e-9b16-4e61d612cd98">
 
-* At each point along each feature axis, the algorithm calculates impurity indices, including the Gini index or entropy. The value on the axis that yields the lowest Gini index or entropy, indicating whether a node is pure enough, is used as the split point. In essence, a node is considered pure enough when the samples or cases within it are more homogeneous than heterogeneous. The algorithm repeats this process with all features until it discovers the optimal decision boundary. Let's delve deeper into the concepts of Gini index and entropy for a clearer understanding of how these parameters influence tree growth.
+* According to the decision boundary plot created using the Iris dataset above, the areas filled in yellow, purple, and blue represent the *decision regions* as determined by the tree. These regions indicate where the algorithm predicts a specific class (i.e., Setosa, Versicolor, Virginica) for any given point based on the input features (i.e., sepal length and sepal width). The lines separating each of the three colored regions constitute the *decision boundaries*, which demarcate where the model's predictions shift from one flower class to another. Ideally, each decision region should correspond to a single class. However, as observed, the real world rarely aligns perfectly with our models, especially when constructing a decision tree with only a few features. Within the yellow decision region, despite the predominance of Versicolor points, there are several blue dots. These represent instances where the model has misclassified Virginica as Versicolor.
+* At each point along each feature axis, the algorithm calculates impurity indices, including *Gini index* or *entropy*. The value on the axis that yields the lowest Gini index or entropy, which indicate whether a node is pure enough, is used as the split point. In essence, a node is considered pure enough when the samples within it are more homogeneous than heterogeneous. The algorithm repeats this process with all features until it discovers the optimal decision boundary. Let's delve deeper into the concepts of Gini index and entropy for a clearer understanding of how these parameters influence classification tree growth.
 
-## 
+### Gini Index
+
+* Gini Index is a metric used to determine whether each node of a decision tree is sufficiently pure, containing homogeneous rather than heterogeneous samples. It calculates the probability of a randomly selected sample from a node being incorrectly classified. The closer the Gini index is to zero, the higher the purity of the leaf node, with a lower Gini index indicating greater purity.
+* If the split points of a feature result in a high Gini index, the tree might adjust these points or opt for new features to construct an alternative tree that reduces impurity.
+* Here's the formula for the Gini Index for a specific node:
+
+
+<img width="274" alt="Screen Shot 2024-02-19 at 9 38 40 AM" src="https://github.com/KayChansiri/DecisionTree/assets/157029107/02cdfad7-d759-4879-8697-38d99cb4d00c">
+
+* *m* is the number of classes. For the iris example, we have three classes. Thus m = 3.
+* *P<sub>i</sub>* is the proportion of class *i* within the node. For example, in the decision tree of the Iris dataset below, at the first-level node displayed within the orange box, the Gini index is calculated as $1 - [({45 \over 52})^2 + ({6 \over 52})^2 + ({1 \over 52})^2] = 0.2147$
+
+<img width="772" alt="Screen Shot 2024-02-19 at 9 56 28 AM" src="https://github.com/KayChansiri/DecisionTree/assets/157029107/c048947c-5dbd-46a1-9038-3aafe0807fc6">
+
+* The Gini index value of 0.2147 indicates that the node exhibits a certain level of purity, predominantly classifying cases as Setosa. However, being the result of the first split, this value is not optimal. For binary targets, the Gini index ranges from 0 (complete purity) to 0.5 (maximum impurity), which means a value of 0.2147 isn't deemed low enough to consider this node purely homogeneous. In the context of multiclassification targets, the Gini index can reach up to 1, accommodating a broader spectrum of impurity levels.
+
+
+### Entropy
+
+* Entropy is a concept borrowed from information theory, signifying the measure of uncertainty or unpredictability in the information content. It helps quantify how much information there is in an event's outcome.
+* Consider a scenario where a node is associated with three possible classes, each with a distinct probability of occurrence. Although this situation implies the leaf is not perfectly pure, it raises an important question: is it beneficial to grow a tree with such a leaf, or is it better not to grow the tree at all? This is where entropy comes into play.
+* Similar to the Gini index, entropy serves as a criterion for determining where to make splits in a decision tree. Both metrics aim to diminish impurity with each subsequent split, with lower values indicating a higher degree of node purity. While some folks lean towards the Gini index due to its marginally lower computational demands, making it quicker to calculate, others prefer entropy for its foundational ties to information theory.
+*  For Python users, the `DecisionTreeClassifier` defaults to using the Gini index. However, you can opt for entropy by adjusting the `criterion` hyperparameter. I would recommended to experiment with both criteria, along with other decision tree parameters, to identify the optimal setup for your particular dataset.
+*  The entropy of a dataset *D* is calculated using the equation:
+
+<img width="341" alt="Screen Shot 2024-02-19 at 10 11 20 AM" src="https://github.com/KayChansiri/DecisionTree/assets/157029107/092cb5ba-59d6-45e0-b268-6a580ce2ac21">
+
+*  *m* represents the total number of classes.
+*  *P<sub>i</sub>* denotes the proportion of examples in the dataset that belong to class *i*.
+*  Let's revisit the orange box at the first-level node of the iris decision tree for an illustrative example. The node contains a total of 52 cases, with 45 belonging to the class Setosa. Therefore, the proportion *p* or the Setosa class is $45 \over 52$. For the remaining two classes, their proportions are  $6 \over 52$ and  $1 \over 52$, respectively.
+*  To calculate the entropy *D*,  we insert these numbers into the entropy equation:
+
+
+<img width="463" alt="Screen Shot 2024-02-19 at 10 23 04 AM" src="https://github.com/KayChansiri/DecisionTree/assets/157029107/53aa3e23-77dc-4ad4-980b-5ad7c24ec607">
+
+* The calculated entropy value of 0.6496 signals a level of purity in the node, significantly shaped by the majority class, Setosa. However, considering that the maximum entropy for binary outcomes can be upto 1, the value of 0.6496 falls short of being considered ideal. A higher entropy value signifies a more equitable class distribution within the node, typically denoting a higher degree of 'impurity disorder.'
+* It's worthy to note that in the context of classification problems, such as with classification trees, the Gini index and entropy serve as criteria for deciding whether to split or further develop the tree. **These metrics do not measure model performance**. Instead, performance metrics for classification problems include accuracy, precision, recall, F1 scores, and the area under the curve, among others, which I will explain later in the post.
 
 
 
