@@ -13,11 +13,11 @@ Despite all the perks, decision trees can sometimes overfit or struggle with bal
 To help simplify the elements of a decision tree, I've utilized the iris dataset, with which many of us are familiar from statistics classes. At this stage, there's no need to concern yourself with interpreting values such as the Gini index or the meanings of the numbers within each box. Instead, let's focus on familiarizing ourselves with the basic structure of a tree.
 <img width="721" alt="Screen Shot 2024-02-18 at 3 55 34 PM" src="https://github.com/KayChansiri/DecisionTree/assets/157029107/d87ac48b-34fb-4e5d-aac5-04c5da5bb0ae">
 
-* Root Node: This is the starting point of a decision tree. The root node is the top box, which, according to the figure above, splits based on the number of ‘sepal length <= 5.45’. It's where the first decision is made and splits into two or more branches.
-* Parent Node: These are nodes that split into other nodes. Any box that has a subsequent split is a parent node, and the subsequent node is a child node. For example, the node with ‘sepal width’ <= 2.8’ (the node at the first level on the left as the root node is considered the zero level) is a parent node.
-* Leaf Node or Terminal Node: These are the final nodes that do not split further and provide the outcome or classification. The boxes which have a 'class' label but no further branches are leaf nodes. They are the boxed at the last level representing the final decision or classification.
-* Branch: These are subsections of the tree that split from either the root or parent nodes. Each condition leads to another decision, which could be a leaf or another decision node. In the figure above, the branches are the lines connecting nodes (i.e., boxes).
-* Depth of a tree: The root noted is considered depth 0 and each split increases the depth of the tree by one. According to the figure, the depth is 2.
+* **Root Node**: This is the starting point of a decision tree. The root node is the top box, which, according to the figure above, splits based on the number of ‘sepal length <= 5.45’. It's where the first decision is made and splits into two or more branches.
+* **Parent Node**: These are nodes that split into other nodes. Any box that has a subsequent split is a parent node, and the subsequent node is a child node. For example, the node with ‘sepal width’ <= 2.8’ (the node at the first level on the left as the root node is considered the zero level) is a parent node.
+* **Leaf Node or Terminal Node**: These are the final nodes that do not split further and provide the outcome or classification. The boxes which have a 'class' label but no further branches are leaf nodes. They are the boxed at the last level representing the final decision or classification.
+* **Branch**: These are subsections of the tree that split from either the root or parent nodes. Each condition leads to another decision, which could be a leaf or another decision node. In the figure above, the branches are the lines connecting nodes (i.e., boxes).
+* **Depth of a tree**: The root noted is considered depth 0 and each split increases the depth of the tree by one. According to the figure, the depth is 2.
 
 # Classification Trees
 Now that you have a basic understanding of what a decision tree is and its key elements, let's explore the first type of decision tree: the classification tree.
@@ -129,9 +129,9 @@ The expression *O*(*n* X *m* log<sub>2</sub>(*n*)) suggests that the time requir
 
 # Classification Tree Case Example: Predicting Deposit Subscription for Bank Customers
 
-Now that you have built a crucial foundation regarding classification tree, we will explore [a banking dataset from Kaggle](https://www.kaggle.com/datasets/prakharrathi25/banking-dataset-marketing-targets?select=test.csv) as our today usecase. I strongly encourage you to examine the dataset in detail, noting the number and types of features, the dataset's purpose, etc., to better acquaint yourself with the data. Although the dataset is relatively straightforward and lacks missing values, which does unfortunately not mirror the complexity of real-world data, it serves as an excellent primer. In brief, the dataset centers on a marketing campaign by a Portuguese bank that uses phone calls to encourage clients to subscribe to a term deposit. Our objective is to predict whether a client will agree to subscribe. Kaggle provides both a training set and a testing set for this purpose, and we'll begin our exploration with the training set.
+Now that you have built a crucial foundation regarding classification tree, we will now dive deeper into a practical application by using [a banking dataset from Kaggle](https://www.kaggle.com/datasets/prakharrathi25/banking-dataset-marketing-targets?select=test.csv) as our casestudy for today.I strongly encourage you to examine the dataset in detail, noting the number and types of features, the dataset's purpose, etc., to better acquaint yourself with the data. Although the dataset is relatively straightforward and lacks missing values, which does unfortunately not mirror the complexity of real-world data, it serves as an excellent primer. In brief, the dataset centers on a marketing campaign by a Portuguese bank that uses phone calls to encourage clients to subscribe to a term deposit. Our objective is to predict whether a client will agree to subscribe. Kaggle provides both a training set and a testing set for this purpose, and we'll begin our exploration with the training set.
 
-# Data Preparation 
+## 1. Data Preparation 
 We'll begin by importing the dataset into our Jupyter notebook environment.
 
 ```ruby
@@ -194,4 +194,33 @@ In addition to all the predictive features, we must also ensure that our target 
 ```ruby
 df_encoded['y'] = df_encoded['y'].map({'yes': 1, 'no': 0})
 ```
+## 2. Model Training 
+Now that we have prepared the dataset, let's begin with model training. We will split the testing data into a test and training set. Remeber that Kaggle provides two datasets for this project and we are now working with the testing data and leave the test set on the side. Our way of separting the testing data into a training set and a testing set in addition to the real test set that we are not exploring now yield us three daatsets: 1) the traning set of the training data, 2) the validation set (i.e., the training set of the traning data), 3) the actual testing set from the traning data. Having a validation set allows us to detect issues that may arise such as overfitting and allowing us to fine tune necessary hyperparameters. 
+
+```ruby
+from sklearn.model_selection import train_test_split
+from sklearn.tree import DecisionTreeClassifier, plot_tree
+import matplotlib.pyplot as plt
+
+# Split the data into features and target variable
+X = df_encoded.drop(columns=['y'])  # All columns except y as features
+y = df_encoded['y']  # Target variable
+
+# Split data into training and test sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Train the DecisionTreeClassifier
+classifier = DecisionTreeClassifier(random_state=42, max_depth = 4)
+classifier.fit(X_train, y_train)
+
+# Visualize the decision tree
+plt.figure(figsize=(40, 10))
+plot_tree(classifier, filled=True, feature_names=X.columns, class_names=['No', 'Yes'])
+plt.show()
+
+```
+
+-- Insert the output plot -- 
+
+Now that 
 
