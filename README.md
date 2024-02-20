@@ -195,7 +195,9 @@ In addition to all the predictive features, we must also ensure that our target 
 df_encoded['y'] = df_encoded['y'].map({'yes': 1, 'no': 0})
 ```
 ## 2. Model Training 
-Now that we have prepared the dataset, let's begin with model training. We will split the testing data into a test and training set. Remeber that Kaggle provides two datasets for this project and we are now working with the testing data and leave the test set on the side. Our way of separting the testing data into a training set and a testing set in addition to the real test set that we are not exploring now yield us three daatsets: 1) the traning set of the training data, 2) the validation set (i.e., the training set of the traning data), 3) the actual testing set from the traning data. Having a validation set allows us to detect issues that may arise such as overfitting and allowing us to fine tune necessary hyperparameters. 
+Now that we have prepared the dataset, let's begin with model training. We will split the testing data into a test and training set. Remeber that Kaggle provides two datasets for this project and we are now working with the testing data and leave the test set on the side. Our way of separting the testing data into a training set and a testing set in addition to the real test set that we are not exploring now yield us three daatsets: 1) the traning set of the training data, 2) the validation set (i.e., the training set of the traning data), 3) the actual testing set from the traning data. Having a validation set allows us to detect issues that may arise such as overfitting and allowing us to fine tune necessary hyperparameters.  
+
+For model training below, I fine-tune only one hyperparamter, which is 'max_depth.'
 
 ```ruby
 from sklearn.model_selection import train_test_split
@@ -222,5 +224,70 @@ plt.show()
 
 -- Insert the output plot -- 
 
-Now that 
+Now that we train our classification tree with the training data, let's test the model performance 
+
+```ruby
+#Model Performance Eval
+
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+
+# Predict the test set results
+y_pred = classifier.predict(X_test)
+
+# Calculate and print the accuracy
+accuracy = accuracy_score(y_test, y_pred)
+print(f'Accuracy: {accuracy:.4f}')
+
+# Generate and display the confusion matrix
+conf_matrix = confusion_matrix(y_test, y_pred)
+print(f'Confusion Matrix:\n{conf_matrix}')
+
+# Calculate precision, recall, and F1-score
+class_report = classification_report(y_test, y_pred, target_names=['No', 'Yes'])
+print(f'Classification Report:\n{class_report}')
+
+
+```
+
+-- Insert the output 
+
+Accuracy: 0.8958
+Confusion Matrix:
+[[7721  231]
+ [ 711  380]]
+Classification Report:
+              precision    recall  f1-score   support
+
+          No       0.92      0.97      0.94      7952
+         Yes       0.62      0.35      0.45      1091
+
+    accuracy                           0.90      9043
+   macro avg       0.77      0.66      0.69      9043
+weighted avg       0.88      0.90      0.88      9043
+
+
+Before we interpret the results keep in mind that we have an imbalance classification. If you look at the whole training dataset, you will see that we have 39922 customers who indicated	"No" to the subscription and 5,289 customers who said "Yes" to the subscription. Let's take a look at each performance matrix:
+
+* **Accuracy** (90.4%): This tells us that, overall, the model correctly predicts both the "no" and "yes" classes about 89.7% of the time. While this might seem high, accuracy alone can be misleading, especially in imbalanced dataset as the metric include the correct cases for both yes and no classess. Again, we have the no costumers roughly six times more than the yes customers. Thus, the results can be biases towards the no samples.
+* **Precision** (62%): When we have imbalanced classess of the target, oftenprecision is a better option comapred to accuraccy as the metric does  not consider all case scenarios, including true positive, true negative, false positive, and false positive like accuracy does. Rather, precision is the ratio of true positive cases to the sum of true positives and false positives without considering negative cases. Thus, the model is not biases towards classes that we do not consider. According to the output of the model above, out of all the instances where the model predicted "yes", about 62 % were actually "yes".
+This metric is useful when the cost of a false positive is high. In this case, false positive is bank customers who are predicted to subscribe to the deposit term but do not actually subscribe.  In other words, we should aim to get a high precision score if we care about not too many false positive cases. In other words, if we want to make sure that we will not waste time and resources calling customers who are not likely to subscribe to the term. 
+* Recall (35%): Similar to predicison, recall is better than accuracy when we have class imbalance. It is the ratio of true positives to the sum of true positives plus false negatives. According to the output, out of all the actual "yes" instances, the model correctly identified about 35%. Recall is particularly important when the cost of a false negative is high.  In this case, false negative are bank customers who are predicted to not subscribe but actually would subscribe. Thus, we should aim to get a high score of recall if we do not want to miss them but this might make the bank has to call to many customers and might end up with wasting money for some false positive cases,. 
+* F1 Score (45%): The F1 score is the harmonic mean of precision and recall and is a better measure than accuracy for imbalanced datasets. A lower F1 score like what we got here. indicates that the model struggles to balance precision and recall, possibly due to class imbalance. 
+
+
+Now you may have a question , should I improve my precision or recall scores?  The answer is that it depends on your project objectives. Say I work for this bank and I do NOT want to bear the cost of some false positives (calls that don't result in a subscription) such that I dont spend time and budget calling everyone, I would try to increase predcision. However, this come with an acceptance that I could  bare the cost that I might have not called someone who actually tend to subscribe as my recall might get lower once I increase precision. But before we move foreard with deciding what are the best precision and recall scores, let's see first if there are any other hyperparameters that we could fine-tune and what are the best values of them. To do so, let's use 'GridSearchCV'
+
+STOP
+
+An important quesiton now is what is an approriate precision or recall score my model should achieve? What is the sweet spot that perhaps cam baance these two metrics, say if nmy boss cares to have both good precision and recall scores? 
+
+For most classification trees, by default, a threshold of 0.5 is used to classify samples. If the score is above 0.5, the sample is predicted as positive; otherwise, it's negative. We can write code to use our model to predict the probability scores for the positive class of each sample in the test set.  Then we can use the probablilyies to examine the relationships between different thresholds, recall, and precision to find the sweet spot that we want to get. To do this, we can use the precision recall curve to help find the best probability cut off point in claccisifying our target and miximize our criteria of precision and recall. 
+
+
+
+
+# What would happen if you do not fine tune the model -- the model would grow to overfit .
+
+
+
 
