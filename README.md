@@ -290,11 +290,56 @@ print("Best cross-validation score (accuracy):", grid_search.best_score_)
 best_tree_clf = grid_search.best_estimator_
 
 ```
-Output: 
 
-<img width="861" alt="Screen Shot 2024-02-21 at 3 59 12 PM" src="https://github.com/KayChansiri/DecisionTree/assets/157029107/1fd746f5-1bc6-4224-85e2-66ad5f8447b8">
+As we are now testing 20,000 combinations (20x100x2x5), it's not surprising that the training takes time. If you try running the cod, the results would indicate that the Gini index is a better criterion for splitting the tree compared to entropy, with 'max_depth' = 5 and 'min_samples_leaf' = 94 being identified as the best hyperparameters. Let's try training the model again using the suggested hyperparameters.
 
-As we are now testing 20x100x2x5 = 20,000 combinations, don't be surprised if the training takes time. The results suggested that gini index as a better criteria to split the tree compared to entropy, 'max_depth'= 5, and 'min_samples_leaf'= 94 as the best hyperparameters here.
+```ruby
+# Train the DecisionTreeClassifier
+classifier = DecisionTreeClassifier(random_state=42, max_depth = 5,  min_samples_leaf = 94)
+classifier.fit(X_train, y_train)
+
+# Visualize the decision tree
+plt.figure(figsize=(100, 10))
+plot_tree(classifier, filled=True, feature_names=X.columns, class_names=['No', 'Yes'])
+plt.show()
+```
+
+![tree2](https://github.com/KayChansiri/DecisionTree/assets/157029107/9745f297-0978-45fe-92f4-7b7683e42167)
+
+According to the tree, you might observe that some leaf nodes still have a Gini index close to 0.5. Does this suggest we should increase the depth of the tree, even though the GridSearch function suggests otherwise? Let's try increasing the max_depth to 10.
+
+```ruby
+# Use max_depth = 10 
+
+classifier = DecisionTreeClassifier(random_state=42, max_depth = 10,  min_samples_leaf = 94)
+classifier.fit(X_train, y_train)
+
+# Visualize the decision tree
+plt.figure(figsize=(100, 10))
+plot_tree(classifier, filled=True, feature_names=X.columns, class_names=['No', 'Yes'])
+plt.show()
+
+```
+
+![Tree3](https://github.com/KayChansiri/DecisionTree/assets/157029107/5b381f81-82e6-4a0e-a40c-379c2a9eb349)
+
+
+By increasing the max_depth, you can see that the Gini index of the leaf nodes is much lower. Does this mean it is beneficial and we should use max_depth = 10? Let's compare the model performance of the tree with max_depth = 5 versus the one with max_depth = 10.
+
+Max_depth = 5:
+
+<img width="680" alt="Screen Shot 2024-02-21 at 4 47 59 PM" src="https://github.com/KayChansiri/DecisionTree/assets/157029107/53b5746b-e1e4-420c-a950-9bf341798b5a">
+
+
+Max_depth = 10:
+<img width="484" alt="Screen Shot 2024-02-21 at 4 48 46 PM" src="https://github.com/KayChansiri/DecisionTree/assets/157029107/c8e6960e-6a6b-4164-a74e-f529516e32da">
+
+Let's say I am concerned about not increasing false positive cases (i.e., prioritizing precision). When fitting the model with max_depth = 10 using the unseen testing data, the model performs even worse, yielding a slightly lower precision rate than when using max_depth = 5. This indicates that a deeper tree (higher max_depth) can capture more nuances of the training data. Despite having a lower Gini index (indicating better separation at the leaves), a deeper tree also increases the risk of learning the noise present in the training data, which can degrade the model's performance on unseen data. If I do not  limit the tree growth at all, the outout could be even like this!: 
+
+
+<img width="992" alt="Screen Shot 2024-02-21 at 4 54 47 PM" src="https://github.com/KayChansiri/DecisionTree/assets/157029107/e1d260ed-26ad-4431-aa32-5cf7dfc1e5de">
+
+The tree is so large that it cannot be rendered. I had to scale it by 0.252723 for the tree to fit on the screen!
 
 An important quesiton now is what is an approriate precision or recall score my model should achieve? What is the sweet spot that perhaps cam baance these two metrics, say if nmy boss cares to have both good precision and recall scores? 
 
