@@ -195,9 +195,7 @@ In addition to all the predictive features, we must also ensure that our target 
 df_encoded['y'] = df_encoded['y'].map({'yes': 1, 'no': 0})
 ```
 ## 2. Model Training 
-Now that we have prepared the dataset, let's begin with model training. We will split the testing data into a test and training set. Remeber that Kaggle provides two datasets for this project and we are now working with the testing data and leave the test set on the side. Our way of separting the testing data into a training set and a testing set in addition to the real test set that we are not exploring now yield us three daatsets: 1) the traning set of the training data, 2) the validation set (i.e., the training set of the traning data), 3) the actual testing set from the traning data. Having a validation set allows us to detect issues that may arise such as overfitting and allowing us to fine tune necessary hyperparameters.  
-
-For model training below, I fine-tune only one hyperparamter, which is 'max_depth.'
+Now that we have prepared the dataset, let's begin with model training. We will split the testing data into a test and training set. Remember that Kaggle provides two datasets for this project, and we are now working with the testing data, leaving the test set aside. Our method of separating the testing data into a training set and a testing set, in addition to the real test set that we are not exploring now, yields us three datasets: 1) the training set of the testing data, 2) the validation set (i.e., the testing set of the training data), and 3) the actual test set from the testing data. Having a validation set allows us to detect issues that may arise, such as overfitting, and enables us to fine-tune necessary hyperparameters. For the model training below, I fine-tune only one hyperparameter, which is 'max_depth.'
 
 ```ruby
 from sklearn.model_selection import train_test_split
@@ -222,10 +220,11 @@ plt.show()
 
 ```
 
--- Insert the output plot -- 
+![tree1](https://github.com/KayChansiri/DecisionTree/assets/157029107/5a976a50-d2e5-4db8-bdcb-5b11e0117e60)
 
-Now that we train our classification tree with the training data, let's test the model performance 
+According to the tree, you will see that several leaf nodes have a Gini index close to 5, indicating that the tree is not a good model yet. Let's test the model's performance.
 
+## 3. Performance Evaluation
 ```ruby
 #Model Performance Eval
 
@@ -246,38 +245,56 @@ print(f'Confusion Matrix:\n{conf_matrix}')
 class_report = classification_report(y_test, y_pred, target_names=['No', 'Yes'])
 print(f'Classification Report:\n{class_report}')
 
-
 ```
 
--- Insert the output 
 
-Accuracy: 0.8958
-Confusion Matrix:
-[[7721  231]
- [ 711  380]]
-Classification Report:
-              precision    recall  f1-score   support
-
-          No       0.92      0.97      0.94      7952
-         Yes       0.62      0.35      0.45      1091
-
-    accuracy                           0.90      9043
-   macro avg       0.77      0.66      0.69      9043
-weighted avg       0.88      0.90      0.88      9043
+<img width="568" alt="Screen Shot 2024-02-21 at 3 52 40 PM" src="https://github.com/KayChansiri/DecisionTree/assets/157029107/db9d3bc4-5e74-4365-9997-6ec6f780714b">
 
 
-Before we interpret the results keep in mind that we have an imbalance classification. If you look at the whole training dataset, you will see that we have 39922 customers who indicated	"No" to the subscription and 5,289 customers who said "Yes" to the subscription. Let's take a look at each performance matrix:
+Before we interpret the results, keep in mind that we are dealing with an imbalanced classification. If you look at the entire training dataset, you will see that we have 39,922 customers who indicated "No" to the subscription and 5,289 customers who said "Yes" to the subscription. Let's take a look at each performance metric:
 
-* **Accuracy** (90.4%): This tells us that, overall, the model correctly predicts both the "no" and "yes" classes about 89.7% of the time. While this might seem high, accuracy alone can be misleading, especially in imbalanced dataset as the metric include the correct cases for both yes and no classess. Again, we have the no costumers roughly six times more than the yes customers. Thus, the results can be biases towards the no samples.
-* **Precision** (62%): When we have imbalanced classess of the target, oftenprecision is a better option comapred to accuraccy as the metric does  not consider all case scenarios, including true positive, true negative, false positive, and false positive like accuracy does. Rather, precision is the ratio of true positive cases to the sum of true positives and false positives without considering negative cases. Thus, the model is not biases towards classes that we do not consider. According to the output of the model above, out of all the instances where the model predicted "yes", about 62 % were actually "yes".
-This metric is useful when the cost of a false positive is high. In this case, false positive is bank customers who are predicted to subscribe to the deposit term but do not actually subscribe.  In other words, we should aim to get a high precision score if we care about not too many false positive cases. In other words, if we want to make sure that we will not waste time and resources calling customers who are not likely to subscribe to the term. 
-* Recall (35%): Similar to predicison, recall is better than accuracy when we have class imbalance. It is the ratio of true positives to the sum of true positives plus false negatives. According to the output, out of all the actual "yes" instances, the model correctly identified about 35%. Recall is particularly important when the cost of a false negative is high.  In this case, false negative are bank customers who are predicted to not subscribe but actually would subscribe. Thus, we should aim to get a high score of recall if we do not want to miss them but this might make the bank has to call to many customers and might end up with wasting money for some false positive cases,. 
-* F1 Score (45%): The F1 score is the harmonic mean of precision and recall and is a better measure than accuracy for imbalanced datasets. A lower F1 score like what we got here. indicates that the model struggles to balance precision and recall, possibly due to class imbalance. 
+* **Accuracy** (90.4%): This tells us that, overall, the model correctly predicts both the "no" and "yes" classes about 90.4% of the time. While this might seem high, accuracy alone can be misleading, especially in an imbalanced dataset, as the metric includes the correct cases for both yes and no classes. Again, we have the "no" customers roughly six times more than the "yes" customers. Thus, the results can be biased towards the "no" samples.
+* **Precision** (62%): When we have imbalanced classes of the target, precision is often a better option compared to accuracy, as the metric does not consider all case scenarios, including true positive, true negative, false positive, and false negative, like accuracy does. Rather, precision is the ratio of true positive cases to the sum of true positives and false positives, without considering negative cases. Thus, the model is not biased towards classes that we do not consider. According to the model output above, out of all the instances where the model predicted "yes," about 62% were actually "yes." This metric is useful when the cost of a false positive is high. In this case, a false positive is bank customers who are predicted to subscribe to the deposit term but do not actually subscribe. In other words, we should aim to get a high precision score if we care about not having too many false positive cases, i.e., if we want to ensure that we will not waste time and resources calling customers who are not likely to subscribe.
+* **Recall** (35%): Similar to precision, recall is better than accuracy when we have class imbalance. It is the ratio of true positives to the sum of true positives plus false negatives. According to the output, out of all the actual "yes" instances, the model correctly identified about 35%. Recall is particularly important when the cost of a false negative is high. In this case, a false negative is bank customers who are predicted not to subscribe but actually would subscribe. Thus, we should aim to get a high recall score if we do not want to miss them, but this might make the bank have to call too many customers and might end up wasting money on some false positive cases.
+* **F1 Score** (45%): The F1 score is the harmonic mean of precision and recall and is a better measure than accuracy for imbalanced datasets. A lower F1 score, like what we got here, indicates that the model struggles to balance precision and recall, possibly due to class imbalance.
 
+Now, you may have a question: should I improve my precision or recall scores? The answer depends on your project objectives. Say I work for this bank and I do NOT want to bear the cost of some false positives (calls that don't result in a subscription) such that I don't spend time and budget calling everyone, I would try to increase precision. However, this comes with an acceptance that I could bear the cost of not calling someone who actually tends to subscribe, as my recall might get lower once I increase precision. 
 
-Now you may have a question , should I improve my precision or recall scores?  The answer is that it depends on your project objectives. Say I work for this bank and I do NOT want to bear the cost of some false positives (calls that don't result in a subscription) such that I dont spend time and budget calling everyone, I would try to increase predcision. However, this come with an acceptance that I could  bare the cost that I might have not called someone who actually tend to subscribe as my recall might get lower once I increase precision. But before we move foreard with deciding what are the best precision and recall scores, let's see first if there are any other hyperparameters that we could fine-tune and what are the best values of them. To do so, let's use 'GridSearchCV'
+Before we move forward with deciding what are the best precision and recall scores, let's see first if there are any other hyperparameters that we could fine-tune and what are the best values for them. To do so, let's use 'GridSearchCV'.
 
-STOP
+## 4. Hyperparameter Fine-Tuning 
+
+```ruby
+from sklearn.model_selection import GridSearchCV
+tree_clf2 = DecisionTreeClassifier(random_state=42)
+tree_clf2.fit(X_train, y_train)
+
+# Define the parameter grid to search
+param_grid = {
+    'max_depth': range(1, 21),  # Exploring max_depth values from 1 to 20
+    'min_samples_leaf':range(1, 101),  # Exploring min_samples_leaf from 1 to 101
+    'criterion': ['gini', 'entropy']  # Exploring two different criteria
+}
+
+# Setup the grid search with cross-validation: 5 folds
+grid_search = GridSearchCV(tree_clf2, param_grid, cv=5, scoring='accuracy', return_train_score=True)
+
+# Perform the grid search on the data
+grid_search.fit(X_train, y_train)
+
+# Print the best parameters and the best score
+print("Best parameters:", grid_search.best_params_)
+print("Best cross-validation score (accuracy):", grid_search.best_score_)
+
+# Optionally, access the best estimator directly
+best_tree_clf = grid_search.best_estimator_
+
+```
+Output: 
+
+<img width="861" alt="Screen Shot 2024-02-21 at 3 59 12 PM" src="https://github.com/KayChansiri/DecisionTree/assets/157029107/1fd746f5-1bc6-4224-85e2-66ad5f8447b8">
+
+As we are now testing 20x100x2x5 = 20,000 combinations, don't be surprised if the training takes time. The results suggested that gini index as a better criteria to split the tree compared to entropy, 'max_depth'= 5, and 'min_samples_leaf'= 94 as the best hyperparameters here.
 
 An important quesiton now is what is an approriate precision or recall score my model should achieve? What is the sweet spot that perhaps cam baance these two metrics, say if nmy boss cares to have both good precision and recall scores? 
 
