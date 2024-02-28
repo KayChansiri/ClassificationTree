@@ -341,15 +341,97 @@ Let's say I am concerned about not increasing false positive cases (i.e., priori
 
 The tree is so large that it cannot be rendered. I had to scale it by 0.252723 for the tree to fit on the screen!
 
-An important quesiton now is what is an approriate precision or recall score my model should achieve? What is the sweet spot that perhaps cam baance these two metrics, say if nmy boss cares to have both good precision and recall scores? 
+An important quesiton now is what is an approriate precision or recall score my model should achieve? What is the sweet spot that perhaps cam balance these two metrics, say if my boss cares to have both good precision and recall scores? 
 
-For most classification trees, by default, a threshold of 0.5 is used to classify samples. If the score is above 0.5, the sample is predicted as positive; otherwise, it's negative. We can write code to use our model to predict the probability scores for the positive class of each sample in the test set.  Then we can use the probablilyies to examine the relationships between different thresholds, recall, and precision to find the sweet spot that we want to get. To do this, we can use the precision recall curve to help find the best probability cut off point in claccisifying our target and miximize our criteria of precision and recall. 
+## 5. Precision-Recall Curve
+
+For most classification trees, the default threshold for classifying samples is 0.5. If the score exceeds 0.5, the sample is predicted as positive; otherwise, it is considered negative. We can write code to use our model to predict the probability scores for the positive class of each sample in the test set. Then, we can use these probabilities to examine the relationships between different thresholds, recall, and precision to find the optimal balance. To achieve this, we can utilize the precision-recall curve to identify the best probability cutoff point for classifying our target and maximize our criteria of precision and recall.
+
+```ruby
+#Visualizinng the area under the curve
+
+import matplotlib.pyplot as plt
+
+plt.plot(thresholds, precisions[:-1], label="Precision")
+plt.plot(thresholds, recalls[:-1], label="Recall")
+plt.xlabel("Threshold")
+plt.ylabel("Value")
+plt.title("Precision and Recall vs. Threshold")
+plt.legend()
+plt.show()
+```
+
+<img width="617" alt="Screen Shot 2024-02-27 at 7 10 31 PM" src="https://github.com/KayChansiri/DecisionTree/assets/157029107/6e1b808e-b729-4cf6-9d40-114de673267d">
+
+According to the output, the sweet spot to balance between precision and recall is 0.4. You can fine tune your model using this new threshold if you care for both false positive and false negeative costs. However, say if I would like to increse recall, I would set the treashold at 0.8. Let's see what would happen if we do so. 
 
 
+```ruby
+classifier = DecisionTreeClassifier(random_state=42, max_depth=5, min_samples_leaf=94)
+classifier.fit(X_train, y_train)
+
+# Predict the probabilities for the positive class ([1])
+y_proba = classifier.predict_proba(X_test)[:, 1]  # Probability of the positive class
+
+# Apply threshold of 0.8 to determine class predictions
+y_pred_threshold = (y_proba >= 0.8).astype(int)
+
+# Calculate and print the accuracy
+accuracy = accuracy_score(y_test, y_pred_threshold)
+print(f'Accuracy: {accuracy:.4f}')
+
+# Generate and display the confusion matrix
+conf_matrix = confusion_matrix(y_test, y_pred_threshold)
+print(f'Confusion Matrix:\n{conf_matrix}')
+
+# Calculate precision, recall, and F1-score
+class_report = classification_report(y_test, y_pred_threshold, target_names=['No', 'Yes'])
+print(f'Classification Report:\n{class_report}')
+
+```
+
+According to the code snippet above, after training the model, I used the .predict_proba() method to get the probability scores for the positive class. Then, I applied my custom threshold of 0.8 to these probabilities to determine the class labels. Specifically, predict_proba(X_test)[:, 1] returns an array of probabilities for the positive class for each sample in X_test. By comparing these probabilities to the threshold of 0.8 (probabilities > 0.8), I got a boolean array, which is then converted to integer type (astype(int)), resulting in 1's (for probabilities above 0.8) and 0's (for probabilities below or equal to 0.8). This array of 1's and 0's represents my predictions based on the custom threshold.
+
+Below is the output  of how the model with the new threshold perform: 
 
 
-# What would happen if you do not fine tune the model -- the model would grow to overfit .
+<img width="524" alt="Screen Shot 2024-02-27 at 7 28 25 PM" src="https://github.com/KayChansiri/DecisionTree/assets/157029107/609c2a46-dd6d-4b56-bd27-b43679abba9f">
+
+You can see that precision for the positive class improves from 62% when I did not adjust the threshold to 82% when the threshold is adjusted to be 0.8. However, this comes with a trade off as you see that the recall scores droped from 40% to 10% when the threashold adjustment.
+
+## 6. Evaluate the Model Performance with the Actual Test Set
+Now that we got our final model that we assumes to be at its best, let's test it with the unseen testint data provided by Kaggle that we sat aside at the beginning. Remember that in the real world, obtaining a precision score at this rate (82%) for a traning dataset is not good at all especially in the realm of business where  customers' subscriptions can signicantly increase revenue for the company. However, for the sake of this demo, let's pretend that we are actually satisfied with this. 
+
+Remeber to do the data preparation for this new testing set in the same way that you did when you prepared the traning data.
+
+#Use the classifier model trained previously with the unseen df_test_encoded
 
 
+```ruby
+# Splitting df_test_encoded into features (X) and target (y)
+X_unseen = df_test_encoded.drop('y', axis=1)  
+y_unseen = df_test_encoded['y'] 
+
+# Predict the probabilities for the positive class ([1]) on the unseen dataset using the trained classifier previously
+y_proba_unseen = classifier.predict_proba(X_unseen)[:, 1]  # Probability of the positive class
+
+# Apply threshold of 0.8 to determine class predictions for the unseen dataset
+y_pred_threshold_unseen = (y_proba_unseen >= 0.8).astype(int)
+
+# Calculate and print the accuracy for the unseen dataset
+accuracy_unseen = accuracy_score(y_unseen, y_pred_threshold_unseen)
+print(f'Accuracy (Unseen): {accuracy_unseen:.4f}')
+
+# Generate and display the confusion matrix for the unseen dataset
+conf_matrix_unseen = confusion_matrix(y_unseen, y_pred_threshold_unseen)
+print(f'Confusion Matrix (Unseen):\n{conf_matrix_unseen}')
+
+# Calculate precision, recall, and F1-score for the unseen dataset
+class_report_unseen = classification_report(y_unseen, y_pred_threshold_unseen, target_names=['No', 'Yes'])
+print(f'Classification Report (Unseen):\n{class_report_unseen}')
+
+```
+
+Here is the output: 
 
 
