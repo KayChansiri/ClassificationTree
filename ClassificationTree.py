@@ -1,42 +1,26 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[1]:
-
-
+### Data Preparation Using the Banking Data from Kaggle
+# Import necessary packages
 import pandas as pd
 import numpy as np
 
 # Define the file path
-file_path = '/Users/kaychan/Dropbox/DT-train.csv'
+file_path = 'Insert your file path here'
 
 import pandas as pd
 
 # Read the CSV file into a pandas DataFrame, specifying the correct delimiter
 df = pd.read_csv(file_path, delimiter=';')
 
-
-
-# In[2]:
-
-
 # Describe the Dataframe
 summary_stats = df.describe(include='all')
 
 print(summary_stats)
-
-
-# In[3]:
-
 
 # Get a summary of information about the DataFrame including the type of variables
 print(df.info())
 
 # Get the first few rows to confirm it looks correct
 print(df.head())
-
-
-# In[2]:
 
 
 # Select columns to encode: all object dtype columns except 'y'
@@ -46,10 +30,6 @@ columns_to_encode = df.select_dtypes(include=['object']).columns.drop('y')
 df_encoded = pd.get_dummies(df, columns=columns_to_encode)
 
 
-
-# In[3]:
-
-
 # Get a summary of information about the DataFrame including the type of variables
 print(df_encoded.info())
 
@@ -57,15 +37,10 @@ print(df_encoded.info())
 print(df_encoded.head())
 
 
-# In[4]:
-
-
 # encode the target variable
 df_encoded['y'] = df_encoded['y'].map({'yes': 1, 'no': 0})
 
-
-# In[5]:
-
+#### Model Training Using max_depth = 4 
 
 # Train the model using max_depth = 4 
 
@@ -89,13 +64,7 @@ plt.figure(figsize=(40, 10))
 plot_tree(classifier, filled=True, feature_names=X.columns, class_names=['No', 'Yes'])
 plt.show()
 
-
-
-
-
-# In[6]:
-
-
+### Performance Evaluation (max_depth = 4)
 #Model Performance Eval (max_depth = 4)
 
 from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
@@ -115,10 +84,7 @@ print(f'Confusion Matrix:\n{conf_matrix}')
 class_report = classification_report(y_test, y_pred, target_names=['No', 'Yes'])
 print(f'Classification Report:\n{class_report}')
 
-
-# In[11]:
-
-
+#### Fine-Tune Hyperparameters
 # use GridSearch to find the best hyperparameters to fine tune
 
 from sklearn.model_selection import GridSearchCV
@@ -146,11 +112,6 @@ print("Best cross-validation score (accuracy):", grid_search.best_score_)
 best_tree_clf = grid_search.best_estimator_
 
 
-
-
-# In[7]:
-
-
 #Training the model again with the best parameters (i.e.,max_depth = 5,  min_samples_leaf = 94) 
 
 
@@ -163,12 +124,7 @@ plt.figure(figsize=(100, 10))
 plot_tree(classifier, filled=True, feature_names=X.columns, class_names=['No', 'Yes'])
 plt.show()
 
-
-
-
-# In[8]:
-
-
+#### Test the Model Performance with the New Parameters
 # Model Eval (max_depth = 5,  min_samples_leaf = 94)
 # Predict the test set results
 y_pred = classifier.predict(X_test)
@@ -186,10 +142,6 @@ class_report = classification_report(y_test, y_pred, target_names=['No', 'Yes'])
 print(f'Classification Report:\n{class_report}')
 
 
-
-# In[9]:
-
-
 # Try increasing max_depth to 10 
 
 classifier = DecisionTreeClassifier(random_state=42, max_depth = 10,  min_samples_leaf = 94)
@@ -199,12 +151,6 @@ classifier.fit(X_train, y_train)
 plt.figure(figsize=(100, 10))
 plot_tree(classifier, filled=True, feature_names=X.columns, class_names=['No', 'Yes'])
 plt.show()
-
-
-
-
-
-# In[19]:
 
 
 # Model Eval (max_depth = 10)
@@ -223,12 +169,7 @@ print(f'Confusion Matrix:\n{conf_matrix}')
 class_report = classification_report(y_test, y_pred, target_names=['No', 'Yes'])
 print(f'Classification Report:\n{class_report}')
 
-
-
-
-# In[10]:
-
-
+#### Try Growing the Tree without Fine-Tuning (Demo Purpose)
 #grow the tree without limiting any thing 
 
 # Split the data into features and target variable
@@ -239,10 +180,6 @@ y = df_encoded['y']  # Target variable
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 tree_clf1 = DecisionTreeClassifier(random_state=42)
 tree_clf1.fit(X_train, y_train)
-
-
-# In[45]:
-
 
 #Visualize the unlimited tree
 from sklearn.tree import export_graphviz
@@ -268,23 +205,13 @@ export_graphviz(
 from graphviz import Source
 Source.from_file("tree_clf1.dot")
 
-
-# In[46]:
-
-
 get_ipython().system('dot -Tpng tree_clf1.dot -o tree_clf1.png')
-
-
-# In[47]:
-
 
 from IPython.display import Image
 Image(filename='tree_clf1.png')
 
 
-# In[11]:
-
-
+#### Precision - Recall Balance
 # Find the best threshold to balance between precision and recall 
 
 from sklearn.metrics import precision_recall_curve
@@ -293,10 +220,6 @@ import numpy as np
 probabilities = classifier.predict_proba(X_test)[:, 1]  # Get probabilities for the positive class
 
 precisions, recalls, thresholds = precision_recall_curve(y_test, probabilities)
-
-
-
-# In[12]:
 
 
 #Visualizinng the area under the curve
@@ -310,10 +233,6 @@ plt.ylabel("Value")
 plt.title("Precision and Recall vs. Threshold")
 plt.legend()
 plt.show()
-
-
-# In[13]:
-
 
 classifier = DecisionTreeClassifier(random_state=42, max_depth=5, min_samples_leaf=94)
 classifier.fit(X_train, y_train)
@@ -337,9 +256,7 @@ class_report = classification_report(y_test, y_pred_threshold, target_names=['No
 print(f'Classification Report:\n{class_report}')
 
 
-# In[15]:
-
-
+#### Test the model with the actual testing set on Kaggle
 #Import the testing set: 
 
 # Define the file path
@@ -350,21 +267,11 @@ import pandas as pd
 # Read the CSV file into a pandas DataFrame, specifying the correct delimiter
 df_test = pd.read_csv(file_path, delimiter=';')
 
-
-
-
-# In[16]:
-
-
 # Get a summary of information about the DataFrame including the type of variables
 print(df_test.info())
 
 # Get the first few rows to confirm it looks correct
 print(df_test.head())
-
-
-# In[17]:
-
 
 # Select columns to encode: all object dtype columns except 'y'
 columns_to_encode = df_test.select_dtypes(include=['object']).columns.drop('y')
@@ -373,28 +280,17 @@ columns_to_encode = df_test.select_dtypes(include=['object']).columns.drop('y')
 df_test_encoded = pd.get_dummies(df_test, columns=columns_to_encode)
 
 
-# In[18]:
-
-
 # Get a summary of information about the DataFrame including the type of variables
 print(df_test_encoded.info())
 
 # Get the first few rows to confirm it looks correct
 print(df_test_encoded.head())
 
-
-# In[19]:
-
-
 # encode the target variable
 df_test_encoded['y'] = df_test_encoded['y'].map({'yes': 1, 'no': 0})
 
 
-# In[20]:
-
-
 #Use the classifier model trained previously with the unseen df_test_encoded
-
 
 # Splitting df_test_encoded into features (X) and target (y)
 X_unseen = df_test_encoded.drop('y', axis=1)  
@@ -417,9 +313,6 @@ print(f'Confusion Matrix (Unseen):\n{conf_matrix_unseen}')
 # Calculate precision, recall, and F1-score for the unseen dataset
 class_report_unseen = classification_report(y_unseen, y_pred_threshold_unseen, target_names=['No', 'Yes'])
 print(f'Classification Report (Unseen):\n{class_report_unseen}')
-
-
-# In[ ]:
 
 
 
