@@ -345,7 +345,7 @@ An important quesiton now is what is an approriate precision or recall score my 
 
 ## 5. Precision-Recall Curve
 
-For most classification trees, the default threshold for classifying samples is 0.5. If the score exceeds 0.5, the sample is predicted as positive; otherwise, it is considered negative. We can write code to use our model to predict the probability scores for the positive class of each sample in the test set. Then, we can use these probabilities to examine the relationships between different thresholds, recall, and precision to find the optimal balance. To achieve this, we can utilize the precision-recall curve to identify the best probability cutoff point for classifying our target and maximize our criteria of precision and recall.
+For most classification trees, the default threshold for classifying samples is 0.5. If the score exceeds 0.5, the sample is predicted as positive; otherwise, it is considered negative. We can write code to use our model to predict the probability scores for the positive class of each sample in the test set. Then, we can use these probabilities to examine the relationships between different thresholds, recall, and precision to find the optimal balance. To achieve this, we can utilize the precision-recall curve to identify the best probability cutoff point for classifying our target and maximize our criteria of precision and recall. See below:
 
 ```ruby
 #Visualizinng the area under the curve
@@ -363,8 +363,7 @@ plt.show()
 
 <img width="617" alt="Screen Shot 2024-02-27 at 7 10 31 PM" src="https://github.com/KayChansiri/DecisionTree/assets/157029107/6e1b808e-b729-4cf6-9d40-114de673267d">
 
-According to the output, the sweet spot to balance between precision and recall is 0.4. You can fine tune your model using this new threshold if you care for both false positive and false negeative costs. However, say if I would like to increse recall, I would set the treashold at 0.8. Let's see what would happen if we do so. 
-
+According to the output, the optimal balance between precision and recall is found at a threshold of 0.4. You can fine-tune your model using this new threshold if you are concerned about the costs of both false positives and false negatives. However, for me, I want to increase recall. Thus, I will set the threshold at 0.8. Let's explore what would happen if we do so.
 
 ```ruby
 classifier = DecisionTreeClassifier(random_state=42, max_depth=5, min_samples_leaf=94)
@@ -390,24 +389,22 @@ print(f'Classification Report:\n{class_report}')
 
 ```
 
-According to the code snippet above, after training the model, I used the .predict_proba() method to get the probability scores for the positive class. Then, I applied my custom threshold of 0.8 to these probabilities to determine the class labels. Specifically, predict_proba(X_test)[:, 1] returns an array of probabilities for the positive class for each sample in X_test. By comparing these probabilities to the threshold of 0.8 (probabilities > 0.8), I got a boolean array, which is then converted to integer type (astype(int)), resulting in 1's (for probabilities above 0.8) and 0's (for probabilities below or equal to 0.8). This array of 1's and 0's represents my predictions based on the custom threshold.
+According to the code snippet above, after training the model, I used the `.predict_proba()` method to obtain the probability scores for the positive class. Then, I applied my custom threshold of 0.8 to these probabilities to determine the class labels. Specifically, `predict_proba(X_test)[:, 1]` returns an array of probabilities for the positive class for each sample in `X_test`. By comparing these probabilities to the threshold of 0.8 (probabilities > 0.8), I obtained a boolean array, which was then converted to integer type (`astype(int)`), resulting in 1's (for probabilities above 0.8) and 0's (for probabilities below or equal to 0.8). This array of 1's and 0's represents my predictions based on the custom threshold.
 
-Below is the output  of how the model with the new threshold perform: 
+Below is the output of how the model performed with the new threshold:
 
 
 <img width="524" alt="Screen Shot 2024-02-27 at 7 28 25 PM" src="https://github.com/KayChansiri/DecisionTree/assets/157029107/609c2a46-dd6d-4b56-bd27-b43679abba9f">
 
-You can see that precision for the positive class improves from 62% when I did not adjust the threshold to 82% when the threshold is adjusted to be 0.8. However, this comes with a trade off as you see that the recall scores droped from 40% to 10% when the threashold adjustment.
-
+You can see that the precision for the positive class improves from 62% when I did not adjust the threshold to 82% after adjusting the threshold to 0.8. However, this comes with a trade-off, as you can see that the recall scores dropped from 40% to 10% with the threshold adjustment.
 ## 6. Evaluate the Model Performance with the Actual Test Set
-Now that we got our final model that we assumes to be at its best, let's test it with the unseen testint data provided by Kaggle that we sat aside at the beginning. Remember that in the real world, obtaining a precision score at this rate (82%) for a traning dataset is not good at all especially in the realm of business where  customers' subscriptions can signicantly increase revenue for the company. However, for the sake of this demo, let's pretend that we are actually satisfied with this. 
 
-Remeber to do the data preparation for this new testing set in the same way that you did when you prepared the traning data.
+Now that we have our final model, which we assume to be at its best, let's test it with the unseen testing data provided by Kaggle that we set aside at the beginning. Remember that in the real world, obtaining a precision score of 82% for a training dataset is not impressive, especially in the realm of business where customer subscriptions can significantly increase revenue for the company. However, for the sake of this demonstration, let's pretend that we are actually satisfied with this result.
 
-#Use the classifier model trained previously with the unseen df_test_encoded
-
+Remember to prepare the new testing set in the same way you did when you prepared the training data (e.g., encode variables, ensure that all features have the exact same names across the datasets).
 
 ```ruby
+#Use the classifier model trained previously with the unseen df_test_encoded
 # Splitting df_test_encoded into features (X) and target (y)
 X_unseen = df_test_encoded.drop('y', axis=1)  
 y_unseen = df_test_encoded['y'] 
@@ -431,7 +428,10 @@ class_report_unseen = classification_report(y_unseen, y_pred_threshold_unseen, t
 print(f'Classification Report (Unseen):\n{class_report_unseen}')
 
 ```
+Here is the output:
 
-Here is the output: 
+The precision scores dropped from 82% to 78%, which is not bad at all! Our search function and fine-tuning of the hyperparameters, including the threshold, did quite a great job in helping us create a good model that fits well with an unseen dataset.
 
+# Summary 
 
+This post discusses the basics of decision trees, including elements of a tree, how to fine-tune your model with a real-world example, and what to look out for when building a tree (e.g., limiting the tree depth to prevent overfitting, balancing precision and recall to serve your project objective, and not using accuracy as a model performance metric when you have imbalanced classification). We have several types of decision trees, yet this post focuses on classification trees with impurity indexes (i.e., Gini index and entropy) as criteria to grow the tree. I also discuss the decision boundary or how the tree classifies targets by using the iterative process to try different decision lines along each feature's axis until each node is as pure as possible. In the next post, I will discuss more about another type of decision tree - the regression tree. We will also have a deeper dive into techniques that could decrease biases for decision trees and ensemble techniques, which form the foundation of random forests. The code used in this data post is available in my GitHub repository. Feel free to check it out.
