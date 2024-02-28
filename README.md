@@ -430,6 +430,8 @@ print(f'Classification Report (Unseen):\n{class_report_unseen}')
 ```
 Here is the output:
 
+<img width="497" alt="Screen Shot 2024-02-27 at 8 47 27 PM" src="https://github.com/KayChansiri/DecisionTree/assets/157029107/9d12a431-ee9f-4622-ae69-177f85ccd549">
+
 The precision scores dropped from 82% to 78%, which is not bad at all! Our search function and fine-tuning of the hyperparameters, including the threshold, did quite a great job in helping us create a good model that fits well with an unseen dataset.
 
 # Summary 
